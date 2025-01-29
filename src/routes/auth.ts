@@ -83,7 +83,8 @@ export async function authRoutes(server: FastifyTypedInstance) {
             }),
             response: {
                 200: z.object({
-                    message: z.string()
+                    message: z.string(),
+                    token: z.string()
                 }),
                 400: z.object({
                     message: z.string()
@@ -111,7 +112,7 @@ export async function authRoutes(server: FastifyTypedInstance) {
 
         const passwordHash = await hashPassword(password);
 
-        await prisma.user.create({
+        const user = await prisma.user.create({
             data: {
                 name,
                 email,
@@ -119,8 +120,14 @@ export async function authRoutes(server: FastifyTypedInstance) {
             }
         });
 
+        const token = server.jwt.sign({
+            id: user.id,
+            email
+        });
+
         return res.send({
-            message: "Usuário criado com sucesso!"
+            message: "Usuário criado com sucesso!",
+            token
         })
     });
 }

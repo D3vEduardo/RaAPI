@@ -13,7 +13,9 @@ class App {
     public app: FastifyInstance;
 
     constructor() {
-        this.app = fastify();
+        this.app = fastify({
+            logger: true
+        });
         this.configureZod();
         this.configureCors();
         this.configureSwagger();
@@ -78,8 +80,9 @@ class App {
 
     public async listen() {
         try {
+            const port = Number(process.env.PORT) || 3000;
             await this.app.listen({
-                port: Number(SERVER_PORT) || 2323,
+                port: port,
                 host: "0.0.0.0"
             });
             console.log("HTTP Server running on port 2323");
