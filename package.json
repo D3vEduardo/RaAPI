@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc && tsc-alias",
-    "start": "node ."
+    "start": "node build/server.js"
   },
   "keywords": [],
   "author": "D3vEduardo",
