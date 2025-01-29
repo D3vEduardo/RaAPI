@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc-alias && tsc",
+    "build": "tsc && tsc-alias",
     "start": "node ."
   },
   "keywords": [],

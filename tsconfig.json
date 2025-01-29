@@ -1,20 +1,28 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "rootDir": "./src",
-    "skipLibCheck": true,
-    "lib": ["ESNext"],
-    "outDir": "./build",
-    "paths": {
-      "@/*": ["./src/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@utils/*": ["./src/utils/*"]
-    }
-  },
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node 23",
+  "_version": "23.0.0",
+
   "include": [
     "src/**/*.ts"
   ],
-  "exclude": ["node_modules", "build"]
+  "exclude": ["node_modules", "build"],
+
+  "compilerOptions": {
+    "lib": ["es2024"],
+    "module": "node16",
+    "target": "es2024",
+    "rootDir": "./src",
+    "outDir": "./build",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@routes/*": ["./src/routes/*"],
+      "@utils/*": ["./src/utils/*"]
+    }
+  }
 }

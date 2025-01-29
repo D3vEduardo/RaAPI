@@ -4,8 +4,8 @@ import {fastifySwaggerUi, FastifySwaggerUiOptions} from "@fastify/swagger-ui";
 import {SECRET_KEY, SERVER_PORT} from "@lib/dotenv.js";
 import {validatorCompiler, serializerCompiler, jsonSchemaTransform} from "fastify-type-provider-zod"
 import {fastifyCors} from "@fastify/cors";
-import {pingRoute} from "@/routes/ping.js";
-import {userRoutes} from "@/routes/user.js";
+import {pingRoute} from "@routes/ping.js";
+import {userRoutes} from "@routes/user.js";
 import { fastifyJwt } from "@fastify/jwt";
 import { fastifyMultipart } from "@fastify/multipart";
 
@@ -66,7 +66,7 @@ class App {
 
     configureJwt() {
         this.app.register(fastifyJwt, {
-            secret: SECRET_KEY
+            secret: SECRET_KEY!
         });
     }
 

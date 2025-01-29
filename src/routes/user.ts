@@ -24,6 +24,12 @@ export async function userRoutes(server: FastifyTypedInstance) {
     }, async (req, res) => {
         const file = await req.file();
 
+        if (!file) {
+            return res.status(400).send({
+                message: "O arquivo é obrigatório."
+            });
+        }
+
         const imageBuffer = await file.toBuffer();
 
         try {
