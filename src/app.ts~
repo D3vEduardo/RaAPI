@@ -20,12 +20,12 @@ class App {
         this.registerRoutes();
         this.configureJwt();
         this.configureFastifyMultipart();
-        //this.configureVercel();
+        this.configureVercel();
     }
 
-    /*configureVercel() {
+    configureVercel() {
         this.app.server.emit("request", req, res);
-    }*/
+    }
 
     configureCors() {
         this.app.register(fastifyCors, {
