@@ -6,6 +6,7 @@ import {validatorCompiler, serializerCompiler, jsonSchemaTransform} from "fastif
 import {fastifyCors} from "@fastify/cors";
 import {pingRoute} from "@routes/ping.js";
 import {userRoutes} from "@routes/user.js";
+import {authRoutes} from "@routes/auth.js";
 import { fastifyJwt } from "@fastify/jwt";
 import { fastifyMultipart } from "@fastify/multipart";
 
@@ -64,6 +65,7 @@ class App {
     registerRoutes() {
         this.app.register(pingRoute);
         this.app.register(userRoutes);
+        this.app.register(authRoutes);
     }
 
     configureJwt() {
