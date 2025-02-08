@@ -27,7 +27,7 @@ export async function registerRoutes(server: FastifyTypedInstance, routesPath: s
             return;
         }
 
-        if (itemIsFile && item == "handler.ts") {
+        if (itemIsFile && item == "handler.ts" || item == "handler.js") {
             const routeUrl = pathToFileURL(itemPath).href;
             const route = await import(routeUrl);
 
