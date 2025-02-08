@@ -1,0 +1,8 @@
+import {RateLimitOptions} from "@fastify/rate-limit";
+
+export function configureRateLimit(server: FastifyTypedInstance) {
+    const rateLimitOptions: RateLimitOptions = {
+        max: 100,
+        timeWindow: "1 minute"
+    }
+}

@@ -1,5 +1,5 @@
 {
-  "name": "Ra Rate API",
+  "name": "Ra Rate APi",
   "version": "1.0.0",
   "main": "build/server.js",
   "type": "module",
@@ -16,7 +16,6 @@
     "@fastify/cors": "^10.0.2",
     "@fastify/jwt": "^9.0.3",
     "@fastify/multipart": "^9.0.3",
-    "@fastify/rate-limit": "^10.2.2",
     "@fastify/swagger": "^9.4.2",
     "@fastify/swagger-ui": "^5.2.1",
     "@prisma/client": "^6.2.1",

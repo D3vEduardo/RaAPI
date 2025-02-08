@@ -25,7 +25,6 @@ export class App {
                 host: "0.0.0.0",
             });
             consola.success(chalk.green("HTTP Server is running on port", port));
-            console.log(chalk.gray("........................................."))
         } catch (err) {
             consola.error(chalk.red("Error starting HTTP server:\n"), err);
             process.exit(1);

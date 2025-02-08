@@ -3,6 +3,6 @@ import {configureServer} from "@utils/configureServer.js";
 
 const server = new App();
 
-await configureServer(server.app);
+configureServer(server.app);
 
 await server.listen();
