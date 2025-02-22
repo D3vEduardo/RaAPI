@@ -1,0 +1,41 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Node 23",
+    "_version": "23.0.0",
+    "compilerOptions": {
+        "lib": [
+            "es2024"
+        ],
+        "module": "node16",
+        "target": "es2024",
+        "outDir": "build",
+        "rootDir": "./src",
+        "baseUrl": "./",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "moduleResolution": "node16",
+        "paths": {
+            "#/*": [
+                "./src/*"
+            ],
+            "#utils/*": [
+                "./src/utils/*"
+            ],
+            "#types/*": [
+                "./src/types/*"
+            ],
+            "#libs/*": [
+                "./src/libs/*"
+            ]
+        },
+        "resolveJsonModule": true
+    },
+    "exclude": [
+        "./build",
+        "./node_modules"
+    ],
+    "include": [
+        "./src"
+    ]
+}
