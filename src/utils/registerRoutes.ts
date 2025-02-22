@@ -31,7 +31,7 @@ export async function registerRoutes(server: FastifyTypedInstace, routesPath = p
                     unregisteredRoutes.push(prefix);
                     continue;
                 }
-                server.register(route.default, { prefix });
+                await server.register(route.default, { prefix });
                 registeredRoutes.push(`"${prefix == "" ? prefix + "/" : prefix}"`);
             } catch (error) {
                 consola.error(error);
@@ -46,7 +46,7 @@ export async function startRegisterRoutes(server: FastifyTypedInstace) {
     consola.info(chalk.blue("Registering routes..."));
     await registerRoutes(server);
     if (unregisteredRoutes.length > 0) {
-        consola.log(chalk.red(registeredRoutes.length + " unregistered routes."));
+        consola.log(chalk.red(unregisteredRoutes.length + " unregistered routes."));
         consola.info(chalk.blue(`Unregistered routes: ${unregisteredRoutes.join(", ")}.`));
     }
     if (registeredRoutes.length == 0) {
