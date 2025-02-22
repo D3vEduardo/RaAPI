@@ -36,5 +36,8 @@
     "#types/*": "./build/types/*",
     "#utils/*": "./build/utils/*",
     "#libs/*": "./build/libs/*"
+  },
+  "engines": {
+    "node": ">=23.0.0"
   }
 }
