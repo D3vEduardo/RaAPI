@@ -14,6 +14,6 @@ export default function (server: FastifyTypedInstace) {
                 }
             }
         }, async (req, res) => {
-            return { message: "Pong!" };
+            return res.status(200).send({ message: "Pong!" });
         });
 }
