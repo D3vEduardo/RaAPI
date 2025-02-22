@@ -22,6 +22,6 @@ export class App {
             consola.error(chalk.red("Failed to start server!", e));
             process.exit(1);
         });
-        consola.success(chalk.green(`HTTP Servre is running on port ${port}.`));
+        consola.success(chalk.green(`HTTP Server is running on port ${port}.`));
     }
 }

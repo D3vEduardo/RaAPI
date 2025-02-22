@@ -1,4 +1,4 @@
-import { FastifyTypedInstace } from "#/types/FastifyTypedInstace.js";
+import { FastifyTypedInstace } from "#types/FastifyTypedInstace.js";
 import { z } from "zod";
 
 export default function (server: FastifyTypedInstace) {
@@ -14,6 +14,6 @@ export default function (server: FastifyTypedInstace) {
                 }
             }
         }, async (req, res) => {
-            return { message: "Pong!" };
+            return res.status(200).send({ message: "Pong!" });
         });
 }
