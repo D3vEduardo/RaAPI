@@ -1,30 +1,62 @@
 import { prisma } from "#libs/prisma.js";
 import chalk from "chalk";
-import consola from "consola";
+import {consola} from "consola";
 import { z } from "zod";
 import { evaluationType } from "#types/evaluationZodType.js";
 import { firebaseAuth } from "#libs/firebase/firebase.js";
 import { FastifyTypedInstace } from "#src/types/FastifyTypedInstace.js";
-import { messaging } from "firebase-admin";
 
 export default async function (server: FastifyTypedInstace) {
     server.get("/", {
         schema: {
-            summary: "Endpoint para pegar todas as avaliações",
+            summary: "Endpoint para pegar todas as avaliações ou a de um usuário.",
             tags: ["Evaluation"],
-            description: "Pega todas as avaliações",
+            description: "Pega todas as avaliações ou a de um usuário.",
+            querystring: z.object({
+                accessToken: z.string().optional()
+            }),
             response: {
                 200: z.object({
                     message: z.string(),
-                    evaluations: z.array(evaluationType)
+                    evaluations: z.array(evaluationType).optional(),
+                    evaluation: evaluationType.optional()
                 }),
                 500: z.object({
+                    message: z.string()
+                }),
+                404: z.object({
                     message: z.string()
                 })
             }
         }
     }, async (req, res) => {
         try {
+            const { accessToken } = req.query;
+            if (accessToken) {
+                const user = await firebaseAuth.verifyIdToken(accessToken).catch(() => {
+                    return res.status(401).send({
+                        message: "Token informado inválido! Não autorizado!"
+                    });
+                });
+
+                const userEvaluation = await prisma.evaluation.findUnique({
+                    where: {
+                        authorId: user.uid
+                    }
+                });
+
+                if (!userEvaluation) {
+                    return res.status(404).send({
+                        message: `Você não possuí nenhuma avaliação!`
+                    });
+                }
+
+                return res.status(200).send({
+                    message: "Sucesso ao pegar sua avaliação!",
+                    evaluation: userEvaluation
+                });
+            }
+
             const evaluations = await prisma.evaluation.findMany({
                 where: {
                     value: { in: [4, 5] }
@@ -32,7 +64,7 @@ export default async function (server: FastifyTypedInstace) {
             });
 
             return res.status(200).send({
-                message: "Avaliações encontradas",
+                message: "Avaliações encontradas!",
                 evaluations
             });
         } catch (e) {
@@ -98,7 +130,7 @@ export default async function (server: FastifyTypedInstace) {
             data: {
                 value,
                 content,
-                authorEmail: user.email
+                authorId: user.uid
             }
         });
 
@@ -161,7 +193,7 @@ export default async function (server: FastifyTypedInstace) {
 
         const updatedEvaluation = await prisma.evaluation.update({
             where: {
-                authorEmail: user.email
+                authorId: user.uid
             },
             data: {
                 content,
@@ -211,7 +243,7 @@ export default async function (server: FastifyTypedInstace) {
 
         await prisma.evaluation.delete({
             where: {
-                authorEmail: user.email
+                authorId: user.uid
             }
         });
 

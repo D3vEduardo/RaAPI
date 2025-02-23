@@ -15,13 +15,18 @@ export class App {
 
     public async listen() {
         const port = Number(process.env.PORT) || 27444;
-        await this.app.listen({
+        this.app.listen({
             port,
             host: "0.0.0.0"
-        }).catch(e => {
-            consola.error(chalk.red("Failed to start server!", e));
-            process.exit(1);
-        });
-        consola.success(chalk.green(`HTTP Server is running on port ${port}.`));
+        }, (err, address) => {
+            if (err) {
+                consola.error(chalk.red("Failed to start server!", err));
+                process.exit(1);
+            }
+
+            consola.success(chalk.green(`HTTP Server is running on port ${port}.`));
+            consola.info(chalk.blue(`Url: ${address}`));
+        })
+
     }
 }

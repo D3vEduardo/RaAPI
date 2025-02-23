@@ -8,10 +8,10 @@ datasource db {
 }
 
 model Evaluation {
-  id         String @id @default(cuid())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  value      Int @default(0)
-  content    String
-  authorEmail String @unique
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  value     Int      @default(0)
+  content   String
+  authorId  String   @unique
 }

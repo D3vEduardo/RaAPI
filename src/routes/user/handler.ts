@@ -3,16 +3,16 @@ import { FastifyTypedInstace } from "#types/FastifyTypedInstace.js";
 import { z } from "zod";
 
 export default async function (server: FastifyTypedInstace) {
-    server.get("/:userEmail", {
+    server.get("/:userId", {
         schema: {
             tags: ["User"],
             summary: "Endpoint para pegar dados públicos de um user",
             description: "Pega os dados públicos de um user",
             params: z.object({
-                userEmail: z.string({
-                    message: "Você deve informar o email!"
-                }).email({
-                    message: "O email informado é inválido!"
+                userId: z.string({
+                    message: "Você deve informar o id do usuario!"
+                }).uuid({
+                    message: "O id informado é inválido!"
                 })
             }),
             response: {
@@ -22,7 +22,7 @@ export default async function (server: FastifyTypedInstace) {
                 200: z.object({
                     message: z.string(),
                     user: z.object({
-                        email: z.string().optional(),
+                        uid: z.string().optional(),
                         displayName: z.string().optional(),
                         photoURL: z.string().optional()
                     })
@@ -30,8 +30,9 @@ export default async function (server: FastifyTypedInstace) {
             }
         }
     }, async (req, res) => {
-        const { userEmail } = req.params;
-        const { email, displayName, photoURL } = await firebaseAuth.getUserByEmail(userEmail).catch(() => {
+        const { userId } = req.params;
+        const { uid, displayName, photoURL } = await firebaseAuth.getUser(userId)
+            .catch(() => {
             return res.status(403).send({
                 message: "Nenhum usuário logado com esse email!"
             });
@@ -40,7 +41,7 @@ export default async function (server: FastifyTypedInstace) {
         return res.status(200).send({
             message: "Busca realizada com sucesso!",
             user: {
-                email,
+                uid,
                 displayName,
                 photoURL
             }
