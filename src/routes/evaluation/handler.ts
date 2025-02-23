@@ -10,7 +10,7 @@ import { messaging } from "firebase-admin";
 export default async function (server: FastifyTypedInstace) {
     server.get("/", {
         schema: {
-            summary: "Get all evaluations endpoint",
+            summary: "Endpoint para pegar todas as avaliações",
             tags: ["Evaluation"],
             description: "Pega todas as avaliações",
             response: {
