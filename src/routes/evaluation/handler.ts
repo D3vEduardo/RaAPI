@@ -5,6 +5,7 @@ import { z } from "zod";
 import { evaluationType } from "#types/evaluationZodType.js";
 import { firebaseAuth } from "#libs/firebase/firebase.js";
 import { FastifyTypedInstace } from "#src/types/FastifyTypedInstace.js";
+import * as console from "node:console";
 
 export default async function (server: FastifyTypedInstace) {
     server.get("/", {
@@ -13,7 +14,11 @@ export default async function (server: FastifyTypedInstace) {
             tags: ["Evaluation"],
             description: "Pega todas as avaliações ou a de um usuário.",
             querystring: z.object({
-                accessToken: z.string().optional()
+                accessToken: z.string().optional(),
+                page: z.string().optional(),
+                pageSize: z.string().optional(),
+                minValue: z.string().optional(),
+                maxValue: z.string().optional(),
             }),
             response: {
                 200: z.object({
@@ -24,14 +29,15 @@ export default async function (server: FastifyTypedInstace) {
                 500: z.object({
                     message: z.string()
                 }),
-                404: z.object({
+                400: z.object({
                     message: z.string()
-                })
+                }),
             }
         }
     }, async (req, res) => {
         try {
-            const { accessToken } = req.query;
+            const { accessToken, page, pageSize, minValue, maxValue } = req.query;
+
             if (accessToken) {
                 const user = await firebaseAuth.verifyIdToken(accessToken).catch(() => {
                     return res.status(401).send({
@@ -57,16 +63,38 @@ export default async function (server: FastifyTypedInstace) {
                 });
             }
 
+            const parsedMinValue = minValue? Math.floor(Number(minValue)) : undefined;
+            const parsedMaxValue = maxValue? Math.floor(Number(maxValue)) : undefined;
+
+            if ((parsedMinValue && parsedMaxValue) && parsedMinValue > parsedMaxValue) {
+                return res.status(400).send({
+                    message: "O valor mínimo não pode ser maior que o valor máximo!"
+                });
+            }
+
+            const parsedPage = Math.floor(Number(page)) || 1;
+            const parsedPageSize = Math.floor(Number(pageSize)) || 10;
+
             const evaluations = await prisma.evaluation.findMany({
                 where: {
-                    value: { in: [4, 5] }
-                }
+                    value: {
+                        gte: parsedMinValue?? 0,
+                        lte: parsedMaxValue??5
+                    },
+                },
+                skip: (parsedPage - 1)*parsedPageSize,
+                take: parsedPage
             });
+
+            if (evaluations.length == 0) {
+                return res.status(400).send({
+                    message: "Nenhuma avaliação encontrada!"
+                });
+            }
 
             return res.status(200).send({
                 message: "Avaliações encontradas!",
-                evaluations
-            });
+                evaluations: evaluations});
         } catch (e) {
             consola.error(chalk.red("Ocorreu um erro ao pegar as avaliações", e));
             return res.status(500).send({

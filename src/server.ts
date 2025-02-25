@@ -1,7 +1,3 @@
-
-import { fastifySwagger } from "@fastify/swagger";
-import { fastifySwaggerUi } from "@fastify/swagger-ui";
-import { jsonSchemaTransform } from "fastify-type-provider-zod";
 import { startRegisterRoutes } from "#utils/registerRoutes.js";
 import { config } from "dotenv";
 import { App } from "./app.js";
