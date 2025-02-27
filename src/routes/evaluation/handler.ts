@@ -2,7 +2,7 @@ import { prisma } from "#libs/prisma.js";
 import chalk from "chalk";
 import {consola} from "consola";
 import { z } from "zod";
-import { evaluationType } from "#types/evaluationZodType.js";
+import {evaluationType, authorType} from "#types/evaluationZodType.js";
 import { firebaseAuth } from "#libs/firebase/firebase.js";
 import { FastifyTypedInstace } from "#src/types/FastifyTypedInstace.js";
 import * as console from "node:console";
@@ -24,6 +24,7 @@ export default async function (server: FastifyTypedInstace) {
                 200: z.object({
                     message: z.string(),
                     evaluations: z.array(evaluationType).optional(),
+                    authors: z.array(authorType).optional(),
                     evaluation: evaluationType.optional()
                 }),
                 500: z.object({
@@ -83,7 +84,7 @@ export default async function (server: FastifyTypedInstace) {
                     },
                 },
                 skip: (parsedPage - 1)*parsedPageSize,
-                take: parsedPage
+                take: parsedPageSize
             });
 
             if (evaluations.length == 0) {
@@ -92,9 +93,31 @@ export default async function (server: FastifyTypedInstace) {
                 });
             }
 
+            const authors = (await Promise.all(
+                evaluations.map(async (evaluation, index) => {
+                    const author = await firebaseAuth.getUser(evaluation.authorId).catch(async () => {
+                        await prisma.evaluation.delete({
+                            where: {
+                                id: evaluation.id
+                            }
+                        });
+                        evaluations.splice(index, 1);
+                    });
+
+                    if (!author) return;
+                    return {
+                        uid: author.uid,
+                        displayName: author.displayName,
+                        photoURL: author.photoURL,
+                    };
+                })
+            )).filter((author): author is NonNullable<typeof author> => Boolean(author));
+
             return res.status(200).send({
                 message: "Avaliações encontradas!",
-                evaluations: evaluations});
+                evaluations,
+                authors
+            });
         } catch (e) {
             consola.error(chalk.red("Ocorreu um erro ao pegar as avaliações", e));
             return res.status(500).send({

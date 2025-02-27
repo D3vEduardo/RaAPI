@@ -8,3 +8,11 @@ export const evaluationType = z.object({
     content: z.string(),
     authorId: z.string(),
 })
+
+export const authorType = z.object({
+    uid: z.string(),
+    displayName: z.string().optional(),
+    photoURL: z.string().url().optional(),
+});
+
+// Promise<{     evaluation: {         value: number         id: number         createdAt: Date         updatedAt: Date         content: string         authorId: string     }     author: void | UserRecord }>[]
