@@ -1,8 +1,8 @@
 import { prisma } from "#libs/prisma.js";
 import chalk from "chalk";
-import {consola} from "consola";
+import { consola } from "consola";
 import { z } from "zod";
-import {evaluationType, authorType} from "#types/evaluationZodType.js";
+import { evaluationType, authorType } from "#types/evaluationZodType.js";
 import { firebaseAuth } from "#libs/firebase/firebase.js";
 import { FastifyTypedInstace } from "#src/types/FastifyTypedInstace.js";
 import * as console from "node:console";
@@ -64,8 +64,8 @@ export default async function (server: FastifyTypedInstace) {
                 });
             }
 
-            const parsedMinValue = minValue? Math.floor(Number(minValue)) : undefined;
-            const parsedMaxValue = maxValue? Math.floor(Number(maxValue)) : undefined;
+            const parsedMinValue = minValue ? Math.floor(Number(minValue)) : undefined;
+            const parsedMaxValue = maxValue ? Math.floor(Number(maxValue)) : undefined;
 
             if ((parsedMinValue && parsedMaxValue) && parsedMinValue > parsedMaxValue) {
                 return res.status(400).send({
@@ -79,11 +79,11 @@ export default async function (server: FastifyTypedInstace) {
             const evaluations = await prisma.evaluation.findMany({
                 where: {
                     value: {
-                        gte: parsedMinValue?? 0,
-                        lte: parsedMaxValue??5
+                        gte: parsedMinValue ?? 0,
+                        lte: parsedMaxValue ?? 5
                     },
                 },
-                skip: (parsedPage - 1)*parsedPageSize,
+                skip: (parsedPage - 1) * parsedPageSize,
                 take: parsedPageSize
             });
 
@@ -132,7 +132,7 @@ export default async function (server: FastifyTypedInstace) {
             description: "Cria uma nova avaliação",
             summary: "Cria uma avaliação.",
             headers: z.object({
-                Authorization: z.string({
+                authorization: z.string({
                     message: "O token de autenticação não foi informado!"
                 })
             }),
@@ -197,7 +197,7 @@ export default async function (server: FastifyTypedInstace) {
             summary: "Atualiza uma avaliação.",
             description: "Endpoint para atualizar uma avaliação.",
             headers: z.object({
-                Authorization: z.string({
+                authorization: z.string({
                     message: "O token de autenticação não foi informado!"
                 })
             }),
@@ -264,8 +264,8 @@ export default async function (server: FastifyTypedInstace) {
             description: "Endpoint para deletar uma avaliação.",
             summary: "Deletar avaliação.",
             headers: z.object({
-                Authorization: z.string({
-                    message: "Token de autenticação não informado!"
+                authorization: z.string({
+                    message: "O token de autenticação não foi informado!"
                 })
             }),
             response: {

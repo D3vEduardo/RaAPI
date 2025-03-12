@@ -11,7 +11,17 @@ export function configureSwagger(server: FastifyTypedInstace) {
                 title: "RA Evaluation API",
                 description: "API de avaliação para web-site da RA Intalações Elétricas",
                 version: "1.0.0"
-            }
+            },
+            components: {
+                securitySchemes: {
+                    bearerAuth: {
+                        type: "http",
+                        scheme: "bearer",
+                        bearerFormat: "JWT"
+                    }
+                }
+            },
+            security: [{ bearerAuth: [] }]
         },
         transform: jsonSchemaTransform
     });
