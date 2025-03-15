@@ -177,6 +177,18 @@ export default async function (server: FastifyTypedInstace) {
             });
         }
 
+        const userEvaluationExists = !!(await prisma.evaluation.findUnique({
+            where: {
+                authorId: user.uid
+            }
+        }));
+
+        if (userEvaluationExists) {
+            return res.status(400).send({
+                message: "Você já possuí uma avaliação!"
+            });
+        }
+
         const evaluation = await prisma.evaluation.create({
             data: {
                 value,
@@ -242,6 +254,18 @@ export default async function (server: FastifyTypedInstace) {
             });
         }
 
+        const userEvaluationExists = !!(await prisma.evaluation.findUnique({
+            where: {
+                authorId: user.uid
+            }
+        }));
+
+        if (!userEvaluationExists) {
+            return res.status(404).send({
+                message: "Você não possuí nenhuma avaliação!"
+            })
+        }
+
         const updatedEvaluation = await prisma.evaluation.update({
             where: {
                 authorId: user.uid
@@ -289,6 +313,18 @@ export default async function (server: FastifyTypedInstace) {
         if (!user.email) {
             return res.status(401).send({
                 message: "Usuário inexistente! Não autorizado!"
+            })
+        }
+
+        const userEvaluationExists = !!(await prisma.evaluation.findUnique({
+            where: {
+                authorId: user.uid
+            }
+        }));
+
+        if (!userEvaluationExists) {
+            return res.status(404).send({
+                message: "Você não possuí nenhuma avaliação!"
             })
         }
 
