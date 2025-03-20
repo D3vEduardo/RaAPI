@@ -323,44 +323,47 @@ export default async function (server: FastifyTypedInstace) {
         return res.status(401).send({
           message: "Token informado de forma inválida! Não autorizado!",
         });
-      const user = await firebaseAuth.verifyIdToken(accessToken).catch(() => {
-        return res.status(401).send({
-          message: "Token inválido! Não autorizado!",
-        });
-      });
+        const user = await firebaseAuth
+          .verifyIdToken(accessToken!)
+          .catch(() => {
+            return res.status(401).send({
+              message: "Token inválido! Não autorizado!",
+            });
+          });
 
-      if (!user.email) {
-        return res.status(401).send({
-          message: "Usuário não autenticado! Não autorizado!",
+        if (!user.email) {
+          return res.status(401).send({
+            message: "Usuário não autenticado! Não autorizado!",
+          });
+        }
+
+        const userEvaluationExists = !!(await prisma.evaluation.findUnique({
+          where: {
+            authorId: user.uid,
+          },
+        }));
+
+        if (!userEvaluationExists) {
+          return res.status(404).send({
+            message: "Você não possuí nenhuma avaliação!",
+          });
+        }
+
+        const updatedEvaluation = await prisma.evaluation.update({
+          where: {
+            authorId: user.uid,
+          },
+          data: {
+            content,
+            value,
+          },
+        });
+
+        return res.status(200).send({
+          message: "Avaliação atualizada com sucesso!",
+          evaluation: updatedEvaluation,
         });
       }
-
-      const userEvaluationExists = !!(await prisma.evaluation.findUnique({
-        where: {
-          authorId: user.uid,
-        },
-      }));
-
-      if (!userEvaluationExists) {
-        return res.status(404).send({
-          message: "Você não possuí nenhuma avaliação!",
-        });
-      }
-
-      const updatedEvaluation = await prisma.evaluation.update({
-        where: {
-          authorId: user.uid,
-        },
-        data: {
-          content,
-          value,
-        },
-      });
-
-      return res.status(200).send({
-        message: "Avaliação atualizada com sucesso!",
-        evaluation: updatedEvaluation,
-      });
     },
   );
 
