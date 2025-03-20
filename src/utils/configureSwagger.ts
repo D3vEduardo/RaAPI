@@ -1,4 +1,4 @@
-import { FastifyTypedInstace } from "#/types/FastifyTypedInstace.js";
+import { FastifyTypedInstace } from "#types/FastifyTypedInstace.js";
 import { fastifySwagger } from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import { jsonSchemaTransform } from "fastify-type-provider-zod";

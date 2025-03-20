@@ -47,7 +47,7 @@ export async function startRegisterRoutes(server: FastifyTypedInstace) {
     await registerRoutes(server);
     if (unregisteredRoutes.length > 0) {
         consola.log(chalk.red(unregisteredRoutes.length + " unregistered routes."));
-        consola.info(chalk.blue(`Unregistered routes: ${unregisteredRoutes.join(", ")}.`));
+        consola.info(chalk.red(`Unregistered routes: ${unregisteredRoutes.join(", ")}.`));
     }
     if (registeredRoutes.length == 0) {
         consola.warn(chalk.yellow(registeredRoutes.length + " registered routes."));

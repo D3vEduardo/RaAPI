@@ -1,11 +1,11 @@
-import { prisma } from "#libs/prisma.js";
+import {prisma} from "#libs/prisma.js";
 import chalk from "chalk";
-import { consola } from "consola";
-import { z } from "zod";
-import { evaluationType, authorType } from "#types/evaluationZodType.js";
-import { firebaseAuth } from "#libs/firebase/firebase.js";
-import { FastifyTypedInstace } from "#src/types/FastifyTypedInstace.js";
-import * as console from "node:console";
+import {consola} from "consola";
+import {z} from "zod";
+import {firebaseAuth} from "#libs/firebase/firebase.js";
+import {evaluationType, authorType} from "#types/evaluationZodType.js";
+import {FastifyTypedInstace } from "#types/FastifyTypedInstace.js";
+import {BearerTokenIsValid} from "#utils/bearerTokenIsValid.js";
 
 export default async function (server: FastifyTypedInstace) {
     server.get("/", {
@@ -13,12 +13,17 @@ export default async function (server: FastifyTypedInstace) {
             summary: "Endpoint para pegar todas as avaliações ou a de um usuário.",
             tags: ["Evaluation"],
             description: "Pega todas as avaliações ou a de um usuário.",
+            headers: {
+                authorization: z.string({
+                    message: "O token de autenticação não foi informado!"
+                }).optional()
+            },
             querystring: z.object({
-                accessToken: z.string().optional(),
                 page: z.string().optional(),
                 pageSize: z.string().optional(),
                 minValue: z.string().optional(),
                 maxValue: z.string().optional(),
+                randomized: z.string().optional()
             }),
             response: {
                 200: z.object({
@@ -37,9 +42,12 @@ export default async function (server: FastifyTypedInstace) {
         }
     }, async (req, res) => {
         try {
-            const { accessToken, page, pageSize, minValue, maxValue } = req.query;
+            const {page, pageSize, minValue, maxValue, randomized} = req.query;
+            const {authorization} = req.headers;
 
-            if (accessToken) {
+            const {valid: accessTokenIsValid, token: accessToken} = BearerTokenIsValid(authorization);
+
+            if (accessToken && accessTokenIsValid) {
                 const user = await firebaseAuth.verifyIdToken(accessToken).catch(() => {
                     return res.status(401).send({
                         message: "Token informado inválido! Não autorizado!"
@@ -76,6 +84,17 @@ export default async function (server: FastifyTypedInstace) {
             const parsedPage = Math.floor(Number(page)) || 1;
             const parsedPageSize = Math.floor(Number(pageSize)) || 10;
 
+            const totalEvaluations = await prisma.evaluation.count({
+                where: {
+                    value: {
+                        gte: parsedMinValue ?? 0,
+                        lte: parsedMaxValue ?? 5
+                    }
+                }
+            });
+
+            const randomSkip = Math.max(0, Math.floor(Math.random() * (totalEvaluations - parsedPageSize)));
+
             const evaluations = await prisma.evaluation.findMany({
                 where: {
                     value: {
@@ -83,9 +102,14 @@ export default async function (server: FastifyTypedInstace) {
                         lte: parsedMaxValue ?? 5
                     },
                 },
-                skip: (parsedPage - 1) * parsedPageSize,
-                take: parsedPageSize
+                // skip: (parsedPage - 1) * parsedPageSize,
+                skip: randomSkip,
+                take: parsedPageSize,
+                orderBy: {
+                    id: "asc"
+                }
             });
+
 
             if (evaluations.length == 0) {
                 return res.status(400).send({
@@ -157,14 +181,14 @@ export default async function (server: FastifyTypedInstace) {
             }
         }
     }, async (req, res) => {
-        const { authorization } = req.headers;
-        const { value, content } = req.body;
-        if (!authorization.startsWith("Bearer ")) {
+        const {authorization} = req.headers;
+        const {value, content} = req.body;
+        const {valid: accessTokenIsValid, token: accessToken} = BearerTokenIsValid(authorization);
+        if (!accessTokenIsValid || !accessToken) {
             return res.status(401).send({
                 message: "Token informado de forma inválida! Não autorizado!"
             });
         }
-        const accessToken = authorization.replace("Bearer ", "");
         const user = await firebaseAuth.verifyIdToken(accessToken).catch(() => {
             return res.status(401).send({
                 message: "Token inválido! Não autorizado!"
@@ -234,14 +258,14 @@ export default async function (server: FastifyTypedInstace) {
             }
         }
     }, async (req, res) => {
-        const { authorization } = req.headers;
-        const { value, content } = req.body;
-        if (!authorization.startsWith("Bearer ")) {
+        const {authorization} = req.headers;
+        const {value, content} = req.body;
+        const {valid: accessTokenIsValid, token: accessToken} = BearerTokenIsValid(authorization);
+        if (!accessTokenIsValid || !accessToken) {
             return res.status(401).send({
                 message: "Token informado de forma inválida! Não autorizado!"
             });
         }
-        const accessToken = authorization.replace("Bearer ", "");
         const user = await firebaseAuth.verifyIdToken(accessToken).catch(() => {
             return res.status(401).send({
                 message: "Token inválido! Não autorizado!"
@@ -302,8 +326,15 @@ export default async function (server: FastifyTypedInstace) {
             }
         }
     }, async (req, res) => {
-        const { authorization } = req.headers;
-        const accessToken = authorization.replace("Bearer ", "");
+        const {authorization} = req.headers;
+
+        const {valid: accessTokenIsValid, token: accessToken} = BearerTokenIsValid(authorization);
+        if (!accessTokenIsValid || !accessToken) {
+            return res.status(401).send({
+                message: "Token informado de forma inválida! Não autorizado!"
+            });
+        }
+
         const user = await firebaseAuth.verifyIdToken(accessToken).catch(() => {
             return res.status(401).send({
                 message: "Token de autenticação inválido! Não autorizado!"
