@@ -6,18 +6,20 @@ import {firebaseAuth} from "#libs/firebase/firebase.js";
 import {evaluationType, authorType} from "#types/evaluationZodType.js";
 import {FastifyTypedInstace } from "#types/FastifyTypedInstace.js";
 import {BearerTokenIsValid} from "#utils/bearerTokenIsValid.js";
+import {Evaluation} from "@prisma/client";
 
 export default async function (server: FastifyTypedInstace) {
+
     server.get("/", {
         schema: {
             summary: "Endpoint para pegar todas as avaliações ou a de um usuário.",
             tags: ["Evaluation"],
             description: "Pega todas as avaliações ou a de um usuário.",
-            headers: {
+            headers: z.object({
                 authorization: z.string({
                     message: "O token de autenticação não foi informado!"
                 }).optional()
-            },
+            }),
             querystring: z.object({
                 page: z.string().optional(),
                 pageSize: z.string().optional(),
@@ -84,31 +86,47 @@ export default async function (server: FastifyTypedInstace) {
             const parsedPage = Math.floor(Number(page)) || 1;
             const parsedPageSize = Math.floor(Number(pageSize)) || 10;
 
-            const totalEvaluations = await prisma.evaluation.count({
-                where: {
-                    value: {
-                        gte: parsedMinValue ?? 0,
-                        lte: parsedMaxValue ?? 5
+            let evaluations: Evaluation[];
+
+            if (randomized) {
+                const evaluationsCount = await prisma.evaluation.count({
+                    where: {
+                        value: {
+                            gte: parsedMinValue ?? 0,
+                            lte: parsedMaxValue ?? 5
+                        }
                     }
-                }
-            });
+                });
 
-            const randomSkip = Math.max(0, Math.floor(Math.random() * (totalEvaluations - parsedPageSize)));
+                const randomSkip = Math.max(0,
+                    Math.floor(
+                        Math.random() * (evaluationsCount - parsedPageSize)
+                    )
+                );
 
-            const evaluations = await prisma.evaluation.findMany({
-                where: {
-                    value: {
-                        gte: parsedMinValue ?? 0,
-                        lte: parsedMaxValue ?? 5
+                evaluations = await prisma.evaluation.findMany({
+                    where: {
+                        value: {
+                            gte: parsedMinValue ?? 0,
+                            lte: parsedMaxValue ?? 5
+                        },
                     },
-                },
-                // skip: (parsedPage - 1) * parsedPageSize,
-                skip: randomSkip,
-                take: parsedPageSize,
-                orderBy: {
-                    id: "asc"
-                }
-            });
+                    skip: randomSkip,
+                    take: parsedPageSize,
+
+                });
+            } else {
+                evaluations = await prisma.evaluation.findMany({
+                    where: {
+                        value: {
+                            gte: parsedMinValue ?? 0,
+                            lte: parsedMaxValue ?? 5
+                        },
+                    },
+                    skip: (parsedPage - 1) * parsedPageSize,
+                    take: parsedPageSize,
+                });
+            }
 
 
             if (evaluations.length == 0) {
