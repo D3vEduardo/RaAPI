@@ -92,6 +92,8 @@ export default async function (server: FastifyTypedInstace) {
         const { page, pageSize, minValue, maxValue, randomized } = req.query;
         const { authorization } = req.headers;
 
+        console.log(randomized);
+
         const { valid: accessTokenIsValid, token: accessToken } =
           BearerTokenIsValid(authorization);
 
