@@ -8,16 +8,16 @@
     "target": "ES2024",
     "outDir": "./build",
     "rootDir": "./src",
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "moduleResolution": "nodenext",
     "paths": {
-      "#/*": ["/*"],
-      "#utils/*": ["utils/*"],
-      "#types/*": ["types/*"],
-      "#libs/*": ["libs/*"]
+      "#/*": ["./src/*"],
+      "#utils/*": ["./src/utils/*"],
+      "#types/*": ["./src/types/*"],
+      "#libs/*": ["./src/libs/*"]
     },
     "resolveJsonModule": true
   },
