@@ -24,11 +24,52 @@ export default async function (server: FastifyTypedInstace) {
             .optional(),
         }),
         querystring: z.object({
-          page: z.string().optional(),
-          pageSize: z.string().optional(),
-          minValue: z.string().optional(),
-          maxValue: z.string().optional(),
-          randomized: z.string().optional(),
+          page: z.coerce
+            .number({
+              message: "A página deve ser um número válido!",
+            })
+            .optional()
+            .default(1),
+          pageSize: z.coerce
+            .number({
+              message: "O tamanho da página deve ser um número válido!",
+            })
+            .min(1, {
+              message: "O tamanho da página deve ser maior ou igual a 1.",
+            })
+            .max(20, {
+              message: "O tamanho da página deve ser menor ou igual a 20.",
+            })
+            .optional()
+            .default(10),
+          minValue: z.coerce
+            .number({
+              message: "O valor mínimo deve ser um número válido!",
+            })
+            .min(1, {
+              message: "O valor mínimo deve ser entre 1 e 5.",
+            })
+            .max(5, {
+              message: "O valor mínimo deve ser entre 1 e 5.",
+            })
+            .optional()
+            .default(1),
+          maxValue: z.coerce
+            .number()
+            .min(1, {
+              message: "O valor máximo deve ser entre 1 e 5.",
+            })
+            .max(5, {
+              message: "O valor máximo deve ser entre 1 e 5.",
+            })
+            .optional()
+            .default(5),
+          randomized: z.coerce
+            .boolean({
+              message: "Randomized deve ser um Boolean.",
+            })
+            .optional()
+            .default(false),
         }),
         response: {
           200: z.object({
@@ -81,63 +122,32 @@ export default async function (server: FastifyTypedInstace) {
           });
         }
 
-        const parsedMinValue = minValue
-          ? Math.floor(Number(minValue))
-          : undefined;
-        const parsedMaxValue = maxValue
-          ? Math.floor(Number(maxValue))
-          : undefined;
-
-        if (
-          parsedMinValue &&
-          parsedMaxValue &&
-          parsedMinValue > parsedMaxValue
-        ) {
+        if (minValue > maxValue) {
           return res.status(400).send({
             message: "O valor mínimo não pode ser maior que o valor máximo!",
           });
         }
 
-        const parsedPage = Math.floor(Number(page)) || 1;
-        const parsedPageSize = Math.floor(Number(pageSize)) || 10;
-
         let evaluations: Evaluation[];
 
         if (randomized) {
-          const evaluationsCount = await prisma.evaluation.count({
-            where: {
-              value: {
-                gte: parsedMinValue ?? 0,
-                lte: parsedMaxValue ?? 5,
-              },
-            },
-          });
-
-          const randomSkip = Math.max(
-            0,
-            Math.floor(Math.random() * (evaluationsCount - parsedPageSize)),
-          );
-
-          evaluations = await prisma.evaluation.findMany({
-            where: {
-              value: {
-                gte: parsedMinValue ?? 0,
-                lte: parsedMaxValue ?? 5,
-              },
-            },
-            skip: randomSkip,
-            take: parsedPageSize,
-          });
+          evaluations = (
+            await prisma.evaluation.findMany({
+              take: pageSize + 10,
+            })
+          )
+            .sort(() => Math.random() - 0.5)
+            .slice(0, pageSize);
         } else {
           evaluations = await prisma.evaluation.findMany({
             where: {
               value: {
-                gte: parsedMinValue ?? 0,
-                lte: parsedMaxValue ?? 5,
+                gte: minValue,
+                lte: maxValue,
               },
             },
-            skip: (parsedPage - 1) * parsedPageSize,
-            take: parsedPageSize,
+            skip: (page - 1) * pageSize,
+            take: pageSize,
           });
         }
 
