@@ -1,41 +1,26 @@
 {
-    "$schema": "https://json.schemastore.org/tsconfig",
-    "display": "Node 23",
-    "_version": "23.0.0",
-    "compilerOptions": {
-        "lib": [
-            "es2024"
-        ],
-        "module": "node16",
-        "target": "es2024",
-        "outDir": "./build",
-        "rootDir": "./src",
-        "baseUrl": "./",
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "moduleResolution": "node16",
-        "paths": {
-            "#/*": [
-                "./src/*"
-            ],
-            "#utils/*": [
-                "./src/utils/*"
-            ],
-            "#types/*": [
-                "./src/types/*"
-            ],
-            "#libs/*": [
-                "./src/libs/*"
-            ]
-        },
-        "resolveJsonModule": true
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node 23",
+  "_version": "23.0.0",
+  "compilerOptions": {
+    "lib": ["es2024"],
+    "module": "NodeNext",
+    "target": "ES2024",
+    "outDir": "./build",
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "nodenext",
+    "paths": {
+      "#/*": ["/*"],
+      "#utils/*": ["utils/*"],
+      "#types/*": ["types/*"],
+      "#libs/*": ["libs/*"]
     },
-    "exclude": [
-        "./build",
-        "./node_modules"
-    ],
-    "include": [
-        "./src"
-    ]
+    "resolveJsonModule": true
+  },
+  "exclude": ["./build", "./node_modules"],
+  "include": ["./src"]
 }

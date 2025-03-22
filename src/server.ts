@@ -4,7 +4,7 @@ import { App } from "./app.js";
 import { configureTypeProvider } from "#utils/configureTypeProvider.js";
 import { configureCors } from "#utils/configureCors.js";
 import { configureSwagger } from "./utils/configureSwagger.js";
-import {configureRateLimit} from "#utils/configureRateLimit.js";
+import { configureRateLimit } from "#utils/configureRateLimit.js";
 
 config();
 
