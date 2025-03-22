@@ -291,29 +291,28 @@ export default async function (server: FastifyTypedInstace) {
     "/",
     {
       schema: {
-        tags: ["Evaluation"],
         summary: "Atualiza uma avaliação.",
         description: "Endpoint para atualizar uma avaliação.",
+        tags: ["Evaluation"],
         headers: z.object({
           authorization: z.string({
             message: "O token de autenticação não foi informado!",
           }),
         }),
         body: z.object({
-          value: z
+          value: z.coerce
             .number({
-              message: "Você deve mencionar o valor da avaliação!",
+              message: "O valor da avaliação deve ser um número válido!",
             })
-            .min(0, "O valor da avaliação deve ser maior que 0.")
-            .max(5, "O valor da avaliação deve ser menor que 5."),
-          content: z
-            .string({
-              message: "Você deve mencionar o conteúdo da avaliação!",
+            .min(1, {
+              message: "O valor da avaliação deve ser maior ou igual 1!",
             })
-            .max(
-              1000,
-              "O conteúdo da avaliação deve ter no máximo 1000 caracteres.",
-            ),
+            .max(5, {
+              message: "O valor da avaliação deve ser menor ou igual a 5!",
+            }),
+          content: z.string({
+            message: "O conteúdo deve ser informado!",
+          }),
         }),
         response: {
           200: z.object({
@@ -328,54 +327,41 @@ export default async function (server: FastifyTypedInstace) {
     },
     async (req, res) => {
       const { authorization } = req.headers;
-      const { value, content } = req.body;
-      const { valid: accessTokenIsValid, token: accessToken } =
-        BearerTokenIsValid(authorization);
-      if (!accessTokenIsValid || !accessToken) {
+      const { content, value } = req.body;
+
+      const { token: accessToken, valid } = BearerTokenIsValid(authorization);
+
+      if ((accessToken && !valid) || !accessToken) {
         return res.status(401).send({
-          message: "Token informado de forma inválida! Não autorizado!",
-        });
-        const user = await firebaseAuth
-          .verifyIdToken(accessToken!)
-          .catch(() => {
-            return res.status(401).send({
-              message: "Token inválido! Não autorizado!",
-            });
-          });
-
-        if (!user.email) {
-          return res.status(401).send({
-            message: "Usuário não autenticado! Não autorizado!",
-          });
-        }
-
-        const userEvaluationExists = !!(await prisma.evaluation.findUnique({
-          where: {
-            authorId: user.uid,
-          },
-        }));
-
-        if (!userEvaluationExists) {
-          return res.status(404).send({
-            message: "Você não possuí nenhuma avaliação!",
-          });
-        }
-
-        const updatedEvaluation = await prisma.evaluation.update({
-          where: {
-            authorId: user.uid,
-          },
-          data: {
-            content,
-            value,
-          },
-        });
-
-        return res.status(200).send({
-          message: "Avaliação atualizada com sucesso!",
-          evaluation: updatedEvaluation,
+          message: "Token não informado ou inválido!",
         });
       }
+
+      const user = await firebaseAuth.verifyIdToken(accessToken).catch(() => {
+        return res.status(401).send({
+          message: "Token informado inválido ou expirado!",
+        });
+      });
+
+      const evaluation = await prisma.evaluation.upsert({
+        where: {
+          authorId: user.uid,
+        },
+        update: {
+          value,
+          content,
+        },
+        create: {
+          value,
+          content,
+          authorId: user.uid,
+        },
+      });
+
+      return res.status(200).send({
+        message: "Avaliação atualizada com sucesso!",
+        evaluation,
+      });
     },
   );
 
