@@ -1,6 +1,6 @@
 import { FastifyTypedInstace } from "#types/FastifyTypedInstace.js";
 import { z } from "zod";
-import { prisma } from "#libs/prisma";
+import { prisma } from "#libs/prisma.js";
 
 export default function (server: FastifyTypedInstace) {
     server.get("/",
