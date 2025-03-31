@@ -1,5 +1,6 @@
 import { FastifyTypedInstace } from "#types/FastifyTypedInstace.js";
 import { z } from "zod";
+import { prisma } from "#libs/prisma";
 
 export default function (server: FastifyTypedInstace) {
     server.get("/",
@@ -14,6 +15,11 @@ export default function (server: FastifyTypedInstace) {
                 }
             }
         }, async (req, res) => {
+            await prisma.evaluation.findUnique({
+            where: {
+              authorId: user.uid,
+            },
+          });
             return res.status(200).send({ message: "Pong!" });
         });
 }
