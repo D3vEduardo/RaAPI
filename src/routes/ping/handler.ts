@@ -15,11 +15,7 @@ export default function (server: FastifyTypedInstace) {
                 }
             }
         }, async (req, res) => {
-            await prisma.evaluation.findUnique({
-            where: {
-              authorId: user.uid,
-            },
-          });
+            await prisma.evaluation.findFirst();
             return res.status(200).send({ message: "Pong!" });
         });
 }
