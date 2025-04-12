@@ -154,7 +154,7 @@ export default async function (server: FastifyTypedInstace) {
         }
 
         if (evaluations.length == 0) {
-          return res.status(400).send({
+          return res.status(404).send({
             message: "Nenhuma avaliação encontrada!",
           });
         }
@@ -267,7 +267,7 @@ export default async function (server: FastifyTypedInstace) {
       }));
 
       if (userEvaluationExists) {
-        return res.status(400).send({
+        return res.status(409).send({
           message: "Você já possuí uma avaliação!",
         });
       }

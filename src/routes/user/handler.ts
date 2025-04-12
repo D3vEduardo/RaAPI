@@ -16,7 +16,7 @@ export default async function (server: FastifyTypedInstace) {
                 })
             }),
             response: {
-                403: z.object({
+                404: z.object({
                     message: z.string()
                 }),
                 200: z.object({
@@ -31,12 +31,18 @@ export default async function (server: FastifyTypedInstace) {
         }
     }, async (req, res) => {
         const { userId } = req.params;
-        const { uid, displayName, photoURL } = await firebaseAuth.getUser(userId)
+        const user = await firebaseAuth.getUser(userId)
             .catch(() => {
-            return res.status(403).send({
-                message: "Nenhum usuário logado com esse email!"
+                return null;
             });
-        });
+
+        if (!user) {
+            return res.status(404).send({
+                message: "Usuário não encontrado!"
+            });
+        }
+
+        const { uid, displayName, photoURL } = user;
 
         return res.status(200).send({
             message: "Busca realizada com sucesso!",
@@ -48,4 +54,4 @@ export default async function (server: FastifyTypedInstace) {
         });
 
     });
-} 
+}
