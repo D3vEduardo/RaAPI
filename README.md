@@ -164,3 +164,5 @@ Tokens inválidos ou ausentes resultarão em erro 401.
 ## 📫 Contato
 
 Dúvidas ou sugestões? Entre em contato com a equipe da RA Instalações Elétricas.
+
+<p align="center"><a href="https://github.com/d3veduardo"><img src="https://github.com/D3vEduardo/D3vEduardo/blob/main/github_readme.png?raw=true" /></a></p>
