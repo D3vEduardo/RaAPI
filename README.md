@@ -157,8 +157,6 @@ Tokens inválidos ou ausentes resultarão em erro 401.
 - Todos os endpoints retornam mensagens claras de erro em caso de falha.
 - O usuário autenticado pode ter apenas uma avaliação.
 
-<p align="center"><a href="https://github.com/d3veduardo"><img src="https://github.com/D3vEduardo/D3vEduardo/blob/main/github_readme.png?raw=true" /></a></p>
-
 ---
 
 ## 📫 Contato
