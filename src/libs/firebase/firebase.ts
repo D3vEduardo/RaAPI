@@ -21,4 +21,6 @@ export const firebaseApp = admin.initializeApp({
     credential: admin.credential.cert(credentials as ServiceAccount),
 });
 
+// export const firebaseDb = firebaseApp.database();
+
 export const firebaseAuth = firebaseApp.auth();
