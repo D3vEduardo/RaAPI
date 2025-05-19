@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "npm prisma push && node build/server.js"
+    "start": "npx prisma db push && node build/server.js"
   },
   "keywords": [],
   "author": "",
